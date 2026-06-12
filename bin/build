@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+
+set -o nounset
+set -o errexit
+set -o pipefail
+IFS=$'\n\t'
+
+source "lib/utilities.sh"
+
+version="${1:-latest}"
+
+if docker buildx build --load --tag "$(tag "$version")" .; then
+  noti --title "Build build finished: $(project)"
+else
+  noti --title "Build build failed: $(project)"
+fi

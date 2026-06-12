@@ -1,0 +1,30 @@
+#! /usr/bin/env bash
+
+set -o nounset
+set -o errexit
+set -o pipefail
+IFS=$'\n\t'
+
+source "lib/utilities.sh"
+
+flag="${1:-''}"
+version="latest"
+
+if [[ "$flag" == 'p' ]]; then
+  version="$(milestoner --next)"
+fi
+
+if [[ "$version" == "0.0.0" ]]; then
+  printf "%s\n" "There's been no activity since last deploy."
+  exit 1
+fi
+
+if docker buildx build --platform linux/arm64,linux/amd64 --tag "$(tag "$version")" --push .; then
+  if [[ "$version" != "latest" ]]; then
+    milestoner --publish "$version"
+  fi
+
+  noti --title "Docker image deployed: $(project):$version"
+else
+  noti --title "Docker image deploy failed: $(project):$version"
+fi

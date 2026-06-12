@@ -1,0 +1,11 @@
+# frozen_string_literal: true
+
+ruby file: ".ruby-version"
+
+source "https://rubygems.org"
+
+gem "caliber", "~> 0.90"
+gem "debug", "~> 1.11"
+gem "git-lint", "~> 11.0"
+gem "milestoner", "~> 21.0"
+gem "rake", "~> 13.4"
