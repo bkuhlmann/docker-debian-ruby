@@ -5,7 +5,7 @@ FROM debian:13.5
 LABEL description="Alchemists Debian Ruby"
 LABEL maintainer="Brooke Kuhlmann <brooke@alchemists.io>"
 
-ARG GIT_VERSION=2.54.0
+ARG GIT_VERSION=2.55.0
 ARG RUBY_VERSION=4.0.5
 ARG RUBY_SHA=5dc5521ea54c726e6cc10b1b5a0f4004b27b482e61c04c99aed79315e30895e5
 ARG RUSTUP_VERISON=1.29.0
@@ -68,33 +68,8 @@ RUN <<STEPS
                   ruby \
                   rustc \
                   tcl \
-                  wget \
                   xz-utils \
                   zlib1g-dev
-
-  # Download
-  curl --remote-name https://www.kernel.org/pub/software/scm/git/git-$GIT_VERSION.tar.xz
-  curl --remote-name https://www.kernel.org/pub/software/scm/git/git-$GIT_VERSION.tar.sign
-
-  # Verify (uses core maintainer Junio C Hamano's signing key)
-  xz --decompress git-$GIT_VERSION.tar.xz
-  gpg --keyserver keyserver.ubuntu.com --recv-keys 20D04E5A713660A7
-  gpg --verify git-$GIT_VERSION.tar.sign git-$GIT_VERSION.tar
-
-  # Build
-  tar --extract --verbose --file git-$GIT_VERSION.tar
-
-  (
-    cd git-$GIT_VERSION || exit
-    ./configure
-    make prefix=/usr all
-    make INSTALL_STRIP=-s prefix=/usr install
-  )
-
-  # Clean
-  rm -rf git-$GIT_VERSION
-  rm -f git-$GIT_VERSION.tar
-  rm -f git-$GIT_VERSION.tar.sign
 
   # Rust
   rustArch=""
@@ -113,8 +88,12 @@ RUN <<STEPS
 
   if [ -n "$rustArch" ]; then
     mkdir -p /tmp/rust
-    wget --quiet -O /tmp/rust/rustup-init "$rustupUrl"
-    wget --quiet -O /tmp/rust/rustup-init.sha256 "${rustupUrl}.sha256"
+    curl --fail --silent --show-error --location --output /tmp/rust/rustup-init "$rustupUrl"
+    curl --fail \
+         --silent \
+         --show-error \
+         --location \
+         --output /tmp/rust/rustup-init.sha256 "${rustupUrl}.sha256"
     echo "$(awk '{print $1}' /tmp/rust/rustup-init.sha256) /tmp/rust/rustup-init" \
          | sha256sum --check --strict
     chmod +x /tmp/rust/rustup-init
@@ -129,15 +108,45 @@ RUN <<STEPS
     cargo --version
   fi
 
-  # Download
-  wget --quiet -O ruby.tar.xz "https://cache.ruby-lang.org/pub/ruby/${RUBY_VERSION::-2}/ruby-$RUBY_VERSION.tar.xz"
+  # Git (download)
+  curl --remote-name https://www.kernel.org/pub/software/scm/git/git-$GIT_VERSION.tar.xz
+  curl --remote-name https://www.kernel.org/pub/software/scm/git/git-$GIT_VERSION.tar.sign
+
+  # Git (verify, uses core maintainer Junio C Hamano's signing key)
+  xz --decompress git-$GIT_VERSION.tar.xz
+  gpg --keyserver keyserver.ubuntu.com --recv-keys 20D04E5A713660A7
+  gpg --verify git-$GIT_VERSION.tar.sign git-$GIT_VERSION.tar
+
+  # Git (build)
+  tar --extract --verbose --file git-$GIT_VERSION.tar
+
+  (
+    cd git-$GIT_VERSION || exit
+    ./configure
+    make prefix=/usr all
+    make INSTALL_STRIP=-s prefix=/usr install
+  )
+
+  # Git (clean)
+  rm -rf git-$GIT_VERSION
+  rm -f git-$GIT_VERSION.tar
+  rm -f git-$GIT_VERSION.tar.sign
+
+
+  # Ruby (download)
+  curl --fail \
+       --silent \
+       --show-error \
+       --location \
+       --output ruby.tar.xz \
+       "https://cache.ruby-lang.org/pub/ruby/${RUBY_VERSION::-2}/ruby-$RUBY_VERSION.tar.xz"
   echo "$RUBY_SHA *ruby.tar.xz" | sha256sum --check --strict
   mkdir -p /usr/src/ruby
   tar -xJf ruby.tar.xz -C /usr/src/ruby --strip-components=1
   rm ruby.tar.xz
   cd /usr/src/ruby
 
-  # Build
+  # Ruby (build)
   autoconf
   gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"
   ./configure --build="$gnuArch" \
@@ -146,7 +155,7 @@ RUN <<STEPS
   make -j "$(nproc)"
   make install
 
-  # Clean
+  # Ruby (clean)
   cd /
   rm -rf /tmp/rust
   rm -r /usr/src/ruby
