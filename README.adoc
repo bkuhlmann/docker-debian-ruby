@@ -32,7 +32,7 @@ To set up the project, run:
 ----
 git clone https://github.com/bkuhlmann/docker-debian-ruby.git
 cd docker-debian-ruby
-git checkout 0.0.0
+git checkout 0.1.0
 ----
 
 == Usage
@@ -43,7 +43,7 @@ link:https://hub.docker.com/r/bkuhlmann/debian-ruby/tags[Docker Hub]. The image 
 [source,bash]
 ----
 docker pull bkuhlmann/debian-ruby:latest  # <= Pull latest version.
-docker pull bkuhlmann/debian-ruby:0.0.0   # <= Pull specific version.
+docker pull bkuhlmann/debian-ruby:0.1.0   # <= Pull specific version.
 ----
 
 You can also build on top of this image via your `Dockerfile`:
@@ -51,7 +51,7 @@ You can also build on top of this image via your `Dockerfile`:
 [source,dockerfile]
 ----
 FROM bkuhlmann/debian-ruby:latest  # <= Latest version.
-FROM bkuhlmann/debian-ruby:0.0.0   # <= Specific version.
+FROM bkuhlmann/debian-ruby:0.1.0   # <= Specific version.
 ----
 
 == Development
