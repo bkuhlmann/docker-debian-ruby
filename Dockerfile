@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.4
 
-FROM debian:13.5
+FROM debian:13.6
 
 LABEL description="Alchemists Debian Ruby"
 LABEL maintainer="Brooke Kuhlmann <brooke@alchemists.io>"
