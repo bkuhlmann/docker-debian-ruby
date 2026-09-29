@@ -5,7 +5,7 @@ FROM debian:13.7
 LABEL description="Alchemists Debian Ruby"
 LABEL maintainer="Brooke Kuhlmann <brooke@alchemists.io>"
 
-ARG GIT_VERSION=2.55.0
+ARG GIT_VERSION=2.56.0
 ARG RUBY_VERSION=4.0.7
 ARG RUBY_SHA=47ef59413f7a4587ba6a6b78b14036eb5e36eec2ec0b90964801e88d56a3d375
 ARG RUSTUP_VERISON=1.29.1
