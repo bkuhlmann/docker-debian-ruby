@@ -6,8 +6,8 @@ LABEL description="Alchemists Debian Ruby"
 LABEL maintainer="Brooke Kuhlmann <brooke@alchemists.io>"
 
 ARG GIT_VERSION=2.56.1
-ARG RUBY_VERSION=4.0.9
-ARG RUBY_SHA=a8057adb39f51ad6dc3106237504c93dd792bb515837b4fe7817ae21ed7e51f4
+ARG RUBY_VERSION=4.0.10
+ARG RUBY_SHA=1537f7a6003c436546ecab6b48b6e7725a9af2328f45a8af7f42f41c5df90ab8
 ARG RUSTUP_VERISON=1.29.2
 ARG RUST_TOOLCHAIN_VERSION=1.91.1
 
@@ -157,7 +157,7 @@ RUN <<STEPS
        --show-error \
        --location \
        --output ruby.tar.xz \
-       "https://cache.ruby-lang.org/pub/ruby/${RUBY_VERSION::-2}/ruby-$RUBY_VERSION.tar.xz"
+       "https://cache.ruby-lang.org/pub/ruby/${RUBY_VERSION%.*}/ruby-$RUBY_VERSION.tar.xz"
   echo "$RUBY_SHA *ruby.tar.xz" | sha256sum --check --strict
   mkdir -p /usr/src/ruby
   tar -xJf ruby.tar.xz -C /usr/src/ruby --strip-components=1
